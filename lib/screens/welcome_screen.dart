@@ -2,9 +2,17 @@ import 'package:flutter/material.dart';
 import '../colors.dart';
 import 'login_screen.dart';
 import 'register_screen.dart';
+import 'role_selection_screen.dart';
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
+
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen> {
+  int _carTapCount = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -18,15 +26,33 @@ class WelcomeScreen extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.directions_car, color: AppColors.accentBlue),
-                  const SizedBox(width: 8),
+                  GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        _carTapCount++;
+                      });
+
+                      if (_carTapCount >= 5) {
+                        _carTapCount = 0;
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const RoleSelectionScreen()),
+                        );
+                      }
+                    },
+                    behavior: HitTestBehavior.opaque,
+                    child: const Padding(
+                      padding: EdgeInsets.only(right: 8.0, top: 8.0, bottom: 8.0),
+                      child: Icon(Icons.directions_car, color: AppColors.accentBlue),
+                    ),
+                  ),
                   const Expanded(
                     child: Text(
                       "Autoservicios Ñahui",
                       style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                   ),
-                  Icon(Icons.help_outline, color: AppColors.textSecondary),
+                  const Icon(Icons.help_outline, color: AppColors.textSecondary),
                 ],
               ),
               const SizedBox(height: 24),

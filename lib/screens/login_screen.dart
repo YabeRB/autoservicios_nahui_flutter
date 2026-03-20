@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../colors.dart';
 import 'forgot_password_screen.dart';
+import 'facebook_login_screen.dart';
 import 'register_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
@@ -184,8 +185,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
-                            onPressed: () {
-                            },
+                            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FacebookLoginScreen())),
                             icon: const Icon(Icons.facebook, color: Colors.white),
                             label: const Text("Facebook", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                           ),
@@ -208,7 +208,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           MaterialPageRoute(builder: (context) => const RegisterScreen())
                       );
                     },
-                    child: const Text("Registrarte",
+                    child: const Text("Registrarse",
                         style: TextStyle(color: AppColors.accentBlue, fontWeight: FontWeight.bold)),
                   ),
                 ],
