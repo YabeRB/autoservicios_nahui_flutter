@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "260300583152",
+    "project_id": "autoserviciosnahui-41a94",
+    "storage_bucket": "autoserviciosnahui-41a94.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:260300583152:android:c3437413543f320ea79235",
+        "android_client_info": {
+          "package_name": "com.app.autoserviciosnahaui"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "260300583152-b78q0lms7af32o1ka5re76gb9k7er867.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.app.autoserviciosnahaui",
+            "certificate_hash": "7b184d9a57914fb0d0260ebff3caaa7eef31a390"
+          }
+        },
+        {
+          "client_id": "260300583152-874otpg6jlqiapegd92e6aekfivt4b1n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAxRw2j9lBBApcN2raFv8lnCZRmX-hubXk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "260300583152-874otpg6jlqiapegd92e6aekfivt4b1n.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

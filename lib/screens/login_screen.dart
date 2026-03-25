@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import '../colors.dart';
 import 'forgot_password_screen.dart';
-import 'facebook_login_screen.dart';
 import 'register_screen.dart';
-import 'package:google_sign_in/google_sign_in.dart';
+import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -15,20 +17,71 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
 
-  final GoogleSignIn _googleSignIn = GoogleSignIn(scopes: ['email']);
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loginWithEmail() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _passwordController.text.trim(),
+      );
+      if (mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+    } on FirebaseAuthException catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error: ${e.message}")));
+    }
+  }
 
   Future<void> _handleGoogleSignIn() async {
     try {
-      final GoogleSignInAccount? account = await _googleSignIn.signIn();
-      if (account != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Bienvenido: ${account.displayName}")),
+      final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+      if (googleUser == null) return;
+
+      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        accessToken: googleAuth.accessToken,
+        idToken: googleAuth.idToken,
+      );
+
+      await FirebaseAuth.instance.signInWithCredential(credential);
+
+      if (mounted) {
+        Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(builder: (context) => const HomeScreen()),
+              (route) => false,
         );
       }
+
     } catch (error) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Error: No se pudo seleccionar la cuenta")),
-      );
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Error al iniciar con Google")));
+    }
+  }
+
+  Future<void> _handleFacebookSignIn() async {
+    try {
+      final LoginResult result = await FacebookAuth.instance.login();
+
+      if (result.status == LoginStatus.success) {
+        final OAuthCredential credential = FacebookAuthProvider.credential(result.accessToken!.tokenString);
+        await FirebaseAuth.instance.signInWithCredential(credential);
+
+        if (mounted) Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Login de Facebook cancelado o fallido: ${result.message}")),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Error al iniciar con Facebook: $e")));
     }
   }
 
@@ -83,6 +136,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         style: TextStyle(color: Colors.white, fontSize: 14)),
                     const SizedBox(height: 8),
                     TextField(
+                      controller: _emailController,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
                         filled: true,
@@ -98,6 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Text("Contraseña", style: TextStyle(color: Colors.white, fontSize: 14)),
                     const SizedBox(height: 8),
                     TextField(
+                      controller: _passwordController,
                       obscureText: _obscurePassword,
                       style: const TextStyle(color: Colors.white),
                       decoration: InputDecoration(
@@ -141,8 +196,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           backgroundColor: AppColors.primaryBlue,
                           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                         ),
-                        onPressed: () {
-                        },
+                        onPressed: _loginWithEmail,
                         child: const Text("Iniciar sesión",
                             style: TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.bold)),
                       ),
@@ -172,7 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
                             onPressed: _handleGoogleSignIn,
-                            icon: const Icon(Icons.g_mobiledata, color: Colors.white, size: 30),
+                            icon: const Icon(Icons.g_mobiledata, color: Colors.white, size: 20),
                             label: const Text("Google", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                           ),
                         ),
@@ -185,7 +239,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                               padding: const EdgeInsets.symmetric(vertical: 16),
                             ),
-                            onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const FacebookLoginScreen())),
+                            onPressed: _handleFacebookSignIn,
                             icon: const Icon(Icons.facebook, color: Colors.white),
                             label: const Text("Facebook", style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
                           ),
